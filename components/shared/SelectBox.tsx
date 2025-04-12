@@ -32,10 +32,7 @@ export default function SelectBox({
   error,
 }: Props) {
   if (isLoading) return <LoadingSpinner color="#F67C2D" loading={isLoading} />;
-  if (error)
-    return (
-      <p className="text-sm font-medium text-red-500">خطایی رخ داده است</p>
-    );
+  if (error) return <p className="error_text">خطایی رخ داده است</p>;
 
   return (
     <div className="flex flex-col gap-1">

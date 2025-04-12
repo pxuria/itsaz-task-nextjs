@@ -4,16 +4,15 @@ import { useState } from "react";
 import {
   Table,
   TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
 import LoadingSpinner from "./LoadingSpinner";
-import DashboardPopover from "./DashboardPopover";
 import DashboardDialog from "./DashboardDialog";
 import { IProducts } from "@/types";
 import { dashboardTableHeaders } from "@/constants";
+import DashboardTableRow from "./DashboardTableRow";
 
 interface TableProps {
   products: IProducts[];
@@ -30,7 +29,6 @@ export default function DashboardTable({
   refetch,
   resetFilters,
 }: TableProps) {
-  const [openPopoverId, setOpenPopoverId] = useState<number | null>(null);
   const [openProduct, setOpenProduct] = useState<IProducts | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
 
@@ -40,10 +38,7 @@ export default function DashboardTable({
   };
 
   if (isLoading) return <LoadingSpinner loading={isLoading} />;
-  if (error)
-    return (
-      <p className="text-sm font-medium text-red-500">خطایی رخ داده است</p>
-    );
+  if (error) return <p className="error_text">خطایی رخ داده است</p>;
 
   return (
     <>
@@ -58,26 +53,13 @@ export default function DashboardTable({
 
         <TableBody className="max-h-[70vh]">
           {products.map((item: IProducts, index: number) => (
-            <TableRow
+            <DashboardTableRow
               key={index}
-              className="h-16 w-full even:!bg-[#E8E8E8]"
-              onDoubleClick={() => handleRowDoubleClick(item)}
-            >
-              <TableCell>{item.id}</TableCell>
-              <TableCell>{item.title}</TableCell>
-              <TableCell>{item.category}</TableCell>
-              <TableCell>{item.price}</TableCell>
-              <TableCell>{item.brand || "-"}</TableCell>
-              <TableCell className="flex_center">
-                <DashboardPopover
-                  openPopoverId={openPopoverId}
-                  itemId={Number(item.id)}
-                  setOpenPopoverId={setOpenPopoverId}
-                  refetch={refetch}
-                  resetFilters={resetFilters}
-                />
-              </TableCell>
-            </TableRow>
+              handleRowDoubleClick={handleRowDoubleClick}
+              item={item}
+              resetFilters={resetFilters}
+              refetch={refetch}
+            />
           ))}
         </TableBody>
       </Table>

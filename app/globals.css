@@ -98,4 +98,7 @@
   .flex_center {
     @apply flex items-center justify-center;
   }
+  .error_text {
+    @apply text-sm font-medium text-red-500;
+  }
 }

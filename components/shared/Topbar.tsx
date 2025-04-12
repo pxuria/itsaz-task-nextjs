@@ -27,7 +27,7 @@ const IconButton = ({
 export default function Topbar() {
   return (
     <div className="flex_center_between flex-wrap-reverse gap-4">
-      <div className=" flex items-center gap-2">
+      <div className="flex items-center gap-2">
         <SidebarTrigger />
 
         <h1 className="text-[#1e1e6e] font-bold text-lg text-nowrap">
@@ -44,7 +44,7 @@ export default function Topbar() {
           <IoNotifications className="w-5 h-5 text-[#FF7B2D]" />
         </IconButton>
 
-        <IconButton className="bg-white outline-1 border-[#f59e0b]">
+        <IconButton className="bg-white border border-[#f59e0b]">
           <LuMail className="w-5 h-5 text-[#FF7B2D]" />
         </IconButton>
       </div>

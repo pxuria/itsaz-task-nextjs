@@ -4,6 +4,7 @@ export const dashboardTableHeaders = [
   "دسته بندی",
   "قیمت",
   "برند",
+  "نمایش محصول",
   "حذف کردن",
 ];
 
