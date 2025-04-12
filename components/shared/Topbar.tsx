@@ -1,9 +1,7 @@
-"use client";
-
+import { ButtonHTMLAttributes, ReactNode } from "react";
 import { SidebarTrigger } from "../ui/sidebar";
 import { LuMail } from "react-icons/lu";
 import { IoNotifications } from "react-icons/io5";
-import { ButtonHTMLAttributes, ReactNode } from "react";
 
 interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;

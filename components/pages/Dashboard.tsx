@@ -1,21 +1,21 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import DashboardFilter from "@/components/shared/DashboardFilter";
-import DashboardPagination from "@/components/shared/DashboardPagination";
-import DashboardTable from "@/components/shared/DashboardTable";
-import SelectBox from "@/components/shared/SelectBox";
-import { useSidebar } from "@/components/ui/sidebar";
-import Topbar from "@/components/shared/Topbar";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useProducts } from "@/hooks/use-products";
+import DashboardTable from "@/components/shared/DashboardTable";
+import { useSidebar } from "@/components/ui/sidebar";
+import DashboardPagination from "@/components/shared/DashboardPagination";
+import Topbar from "@/components/shared/Topbar";
+import DashboardFilter from "@/components/shared/DashboardFilter";
+import SelectBox from "@/components/shared/SelectBox";
 import { DASHBOARD_DEFAULT_LIMIT } from "@/constants";
 
 export default function Dashboard() {
   const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
   const { open: isSidebarOpen } = useSidebar();
+
   const [selectedCategory, setSelectedCategory] = useState<string | null>(
     searchParams.get("category")
   );
@@ -46,7 +46,7 @@ export default function Dashboard() {
   );
 
   const { data, error, isLoading, refetch } = useProducts(
-    `${categoryPath}?${queryParams}`
+    `${categoryPath}${queryParams}`
   );
 
   const totalPages = useMemo(
@@ -54,68 +54,88 @@ export default function Dashboard() {
     [data?.total, validLimit]
   );
 
+  const updateSearchParams = useCallback(
+    (params: Record<string, string | null>) => {
+      const query = new URLSearchParams();
+
+      if (params.limit) query.set("limit", params.limit);
+      if (params.skip) query.set("skip", params.skip);
+      if (params.category) query.set("category", params.category);
+
+      router.push(`/?${query.toString()}`);
+    },
+    [router]
+  );
+
+  const categoryHandle = useCallback(
+    (cat: string) => {
+      updateSearchParams({
+        limit: validLimit.toString(),
+        skip: "0",
+        category: cat,
+      });
+      setSelectedCategory(cat);
+    },
+    [updateSearchParams, validLimit]
+  );
+
   const resetFilters = useCallback(() => {
-    const params = new URLSearchParams();
-    params.set("limit", DASHBOARD_DEFAULT_LIMIT.toString());
-    params.set("skip", "0");
     setSelectedCategory(null);
-    router.push(pathname + params.toString());
-  }, [pathname, router]);
+    updateSearchParams({
+      limit: DASHBOARD_DEFAULT_LIMIT.toString(),
+      skip: "0",
+      category: null,
+    });
+  }, [updateSearchParams]);
 
   const handlePageChange = useCallback(
     (page: number) => {
       const newSkip = (page - 1) * validLimit;
-      const params = new URLSearchParams(searchParams.toString());
-      params.set("skip", newSkip.toString());
-      params.set("limit", validLimit.toString());
-      if (selectedCategory) params.set("category", selectedCategory);
-      router.push(pathname + params.toString());
+      updateSearchParams({
+        // searchParams:searchParams.toString(),
+        limit: validLimit.toString(),
+        skip: newSkip.toString(),
+        category: selectedCategory,
+      });
+      // const params = new URLSearchParams(searchParams.toString());
     },
-    [validLimit, searchParams, pathname, router, selectedCategory]
+    [validLimit, selectedCategory, updateSearchParams]
   );
 
   const handleApplyFilter = useCallback(() => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (selectedCategory) params.set("category", selectedCategory);
-    else params.delete("category");
-    params.set("skip", "0");
-    router.push(pathname + params.toString());
-  }, [searchParams, selectedCategory, pathname, router]);
+    updateSearchParams({
+      limit: validLimit.toString(),
+      skip: "0",
+      category: selectedCategory,
+    });
+  }, [selectedCategory, updateSearchParams, validLimit]);
 
   const handleClearFilter = useCallback(() => {
     setSelectedCategory(null);
-    const params = new URLSearchParams(searchParams.toString());
-    params.delete("category");
-    params.set("skip", "0");
-    router.push(pathname + params.toString());
-  }, [searchParams, pathname, router]);
+    updateSearchParams({
+      limit: validLimit.toString(),
+      skip: "0",
+      category: null,
+    });
+  }, [updateSearchParams, validLimit]);
 
   useEffect(() => {
-    setSelectedCategory(searchParams.get("category"));
+    const cat = searchParams.get("category");
+    setSelectedCategory(cat);
 
-    const params = new URLSearchParams(searchParams.toString());
-    let needsUpdate = false;
-    if (!searchParams.has("limit")) {
-      params.set("limit", DASHBOARD_DEFAULT_LIMIT.toString());
-      needsUpdate = true;
-    }
-    if (!searchParams.has("skip")) {
-      params.set("skip", "0");
-      needsUpdate = true;
-    }
-    if (needsUpdate) router.push(pathname + params.toString());
-  }, [searchParams, pathname, router]);
+    const hasLimit = searchParams.has("limit");
+    const hasSkip = searchParams.has("skip");
 
-  useEffect(() => {
-    const categoryInParams = searchParams.get("category");
-    if (selectedCategory !== categoryInParams) {
-      const params = new URLSearchParams(searchParams.toString());
-      if (selectedCategory) params.set("category", selectedCategory);
-      else params.delete("category");
-      params.set("skip", "0");
-      router.push(pathname + params.toString());
+    if (!hasLimit || !hasSkip) {
+      updateSearchParams({
+        limit: hasLimit
+          ? searchParams.get("limit")
+          : DASHBOARD_DEFAULT_LIMIT.toString(),
+        skip: hasSkip ? searchParams.get("skip") : "0",
+        category: cat,
+      });
     }
-  }, [searchParams, pathname, router, selectedCategory]);
+  }, [searchParams, updateSearchParams]);
 
   return (
     <main
@@ -132,7 +152,7 @@ export default function Dashboard() {
           <DashboardFilter
             handleClearFilter={handleClearFilter}
             handleApplyFilter={handleApplyFilter}
-            setSelectedCategory={setSelectedCategory}
+            setSelectedCategory={categoryHandle}
             selectedCategory={selectedCategory}
           />
         </div>
