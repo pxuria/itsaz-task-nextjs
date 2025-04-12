@@ -15,7 +15,7 @@ const override: CSSProperties = {
 };
 
 export default function Loading({
-  color = "#3B82F6",
+  color = "#F67C2D",
   loading,
   size = 15,
 }: LoadingSpinnerProps) {
