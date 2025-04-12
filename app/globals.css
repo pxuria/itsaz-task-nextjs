@@ -8,8 +8,6 @@
   }
 }
 
-
-
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -82,13 +80,22 @@
   }
 }
 
-
-
 @layer base {
   * {
-    @apply border-border;
+    @apply m-0 p-0 box-border;
   }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-white;
+  }
+}
+
+@layer utilities {
+  .flex_center_between {
+    @apply flex items-center justify-between;
+  }
+
+  .flex_center {
+    @apply flex items-center justify-center;
   }
 }
